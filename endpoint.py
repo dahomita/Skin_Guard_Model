@@ -1,46 +1,44 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
 import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 
-# ✅ Initialize Flask app
-app = Flask(__name__)
-
-# ✅ Load the trained model
+app = FastAPI()
 model = load_model('skin_cancer_detection_model.h5')
-
-# ✅ Define image size
 img_size = (224, 224)
 
-# ✅ Preprocessing function
 def preprocess_image(img):
     img = cv2.resize(img, img_size)
     img = np.expand_dims(img, axis=0)
     img = img / 255.0
     return img
 
-# ✅ Prediction endpoint
-@app.route('/predict', methods=['POST'])
-def predict():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image uploaded'}), 400
+@app.post("/predict")
+async def predict(image: UploadFile = File(...)):
+    try:
+        print("[INFO] Received image")
+        contents = await image.read()
 
-    file = request.files['image']
-    if file:
-        try:
-            # Read and decode image
-            img = cv2.imdecode(np.frombuffer(file.read(), np.uint8), 1)
-            # Preprocess
-            img = preprocess_image(img)
-            # Predict
-            pred = model.predict(img)
-            pred_label = 'Cancer' if pred[0][0] > 0.5 else 'Not Cancer'
-            pred_prob = float(pred[0][0])
-            # Respond
-            return jsonify({'prediction': pred_label, 'probability': pred_prob})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        # Decode the image
+        img = cv2.imdecode(np.frombuffer(contents, np.uint8), 1)
+        if img is None:
+            print("[ERROR] Failed to decode image")
+            return JSONResponse(content={"error": "Invalid image"}, status_code=400)
 
-    return jsonify({'error': 'Invalid image'}), 400
+        # Preprocess the image
+        print("[INFO] Preprocessing...")
+        img = preprocess_image(img)
 
-# ⚠️ Do NOT include `app.run()` — gunicorn will launch the app
+        # Predict
+        print("[INFO] Predicting...")
+        pred = model.predict(img)
+        pred_label = 'Cancer' if pred[0][0] > 0.5 else 'Not Cancer'
+        pred_prob = float(pred[0][0])
+
+        print("[INFO] Prediction successful")
+        return {"prediction": pred_label, "probability": round(pred_prob, 4)}
+
+    except Exception as e:
+        print(f"[ERROR] {str(e)}")
+        return JSONResponse(content={"error": str(e)}, status_code=500)
