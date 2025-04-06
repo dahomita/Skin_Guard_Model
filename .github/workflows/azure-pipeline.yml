@@ -2,6 +2,8 @@ name: Azure Skin Cancer Pipeline
 
 on:
   push:
+    branches: 
+        main
     paths:
       - 'Skin_Data/**'
       - 'model.py'
