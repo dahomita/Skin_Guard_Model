@@ -1,13 +1,13 @@
 name: Azure Skin Cancer Pipeline
 
 on:
-  push:
-    branches: 
-        main
-    paths:
-      - 'Skin_Data/**'
-      - 'model.py'
-      - 'requirements.txt'
+    push:
+      paths:
+        - 'Skin_Data/**'
+        - 'model.py'
+        - 'requirements.txt'
+    workflow_dispatch:  # <--- Add this
+  
 
 jobs:
   train-and-deploy:
