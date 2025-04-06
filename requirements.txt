@@ -11,3 +11,7 @@ pydantic==2.5.2
 starlette==0.31.1
 typing-extensions==4.9.0
 gunicorn==21.2.0
+fastapi==0.108.0
+starlette==0.31.1
+
+
