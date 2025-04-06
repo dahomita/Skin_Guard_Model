@@ -10,3 +10,7 @@ python-multipart==0.0.6
 pydantic==2.5.2
 starlette==0.31.1
 typing-extensions==4.9.0
+Flask
+tensorflow
+opencv-python
+numpy
