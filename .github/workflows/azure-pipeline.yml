@@ -1,0 +1,57 @@
+name: Azure Skin Cancer Pipeline
+
+on:
+  push:
+    paths:
+      - 'Skin_Data/**'
+      - 'model.py'
+      - 'requirements.txt'
+
+jobs:
+  train-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        
+    - name: Train model
+      run: |
+        source venv/bin/activate
+        python model.py
+        
+    - name: Build and push training image
+      uses: azure/docker-login@v1
+      with:
+        login-server: skincanceracr.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+      run: |
+        docker build -f Dockerfile.train -t skincanceracr.azurecr.io/train-image:latest .
+        docker push skincanceracr.azurecr.io/train-image:latest
+        
+    - name: Build and push API image
+      run: |
+        docker build -t skincanceracr.azurecr.io/api-image:latest .
+        docker push skincanceracr.azurecr.io/api-image:latest
+        
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: skin-cancer-api
+        resource-group: SkinCancerRG
+        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}

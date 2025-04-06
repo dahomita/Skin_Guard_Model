@@ -1,0 +1,18 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy everything except large files tracked by LFS
+COPY . .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Training command
+CMD ["python", "model.py"]
