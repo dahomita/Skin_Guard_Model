@@ -33,7 +33,7 @@ jobs:
         source venv/bin/activate
         python model.py
 
-    - name: Login to ACR
+    - name: Log in to Azure Container Registry
       uses: azure/docker-login@v1
       with:
         login-server: skincanceracr.azurecr.io
@@ -55,4 +55,4 @@ jobs:
       with:
         app-name: skin-cancer-api
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-        images: 'skincanceracr.azurecr.io/api-image:latest'
+        images: skincanceracr.azurecr.io/api-image:latest
