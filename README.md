@@ -45,14 +45,16 @@ Key dependencies include:
 
 ## API Usage
 
-### Running the API Server
+### Training the AI model
 
 ```shell
-python main.py
+python model.py
 ```
-
+### Run the API endpoints on local
+```shell
+python endpoint.py
+```
 This starts the API server on `http://0.0.0.0:8000`.
-
 ### API Endpoints
 
 #### POST /predict
@@ -90,24 +92,7 @@ result = response.json()
 print(result)
 ```
 
-## Deployment
-
-The API can be deployed to various platforms:
-
-1. Cloud services:
-   - Heroku
-   - AWS (EC2, Elastic Beanstalk)
-   - Google Cloud Run
-   - Azure App Service
-
-2. Self-hosting:
-   - Docker container
-   - Virtual private server
-
 ## Acknowledgments
 
 - The Skin Cancer Binary Classification Dataset used in this project: [Kaggle](https://www.kaggle.com/datasets/kylegraupe/skin-cancer-binary-classification-dataset).
 
-## License
-
-This project is licensed under the [MIT License](LICENSE).
